@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATSAlign | AI-Powered Resume Analyzer</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Styling stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background glow elements -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-wand-magic-sparkles logo-icon"></i>
+                <span class="logo-text">ATS<span class="logo-highlight">Align</span></span>
+            </div>
+            
+            <nav class="nav-menu">
+                <button class="nav-item active" data-tab="analyze-tab">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Analyzer</span>
+                </button>
+                <button class="nav-item" data-tab="improve-tab">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Bullet Improver</span>
+                </button>
+                <button class="nav-item" data-tab="leetcode-tab">
+                    <i class="fa-solid fa-code"></i>
+                    <span>LeetCode Sync</span>
+                </button>
+                <button class="nav-item" data-tab="history-tab">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>Scan History</span>
+                </button>
+            </nav>
+
+            <div class="api-status-card">
+                <div class="status-indicator online"></div>
+                <div class="status-info">
+                    <span class="status-label">Backend Status</span>
+                    <span class="status-val" id="backend-status">Checking...</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="workspace">
+            <header class="top-header">
+                <div class="header-title-area">
+                    <h1 id="page-title">Resume Analyzer</h1>
+                    <p class="header-subtitle" id="page-subtitle">Evaluate your resume alignment against job descriptions using AI & NLP</p>
+                </div>
+                <div class="user-profile">
+                    <span class="version-badge">v1.0 Stable</span>
+                </div>
+            </header>
+
+            <!-- Tab 1: Analyzer Content -->
+            <section class="tab-content active" id="analyze-tab">
+                <div class="analyzer-grid">
+                    <!-- Left: Upload inputs -->
+                    <div class="card input-card glass">
+                        <h2 class="card-title"><i class="fa-solid fa-upload"></i> Analysis Inputs</h2>
+                        
+                        <form id="analyze-form">
+                            <!-- Resume PDF Upload Dropzone -->
+                            <div class="form-group">
+                                <label class="field-label">Upload Resume (PDF format)</label>
+                                <div class="dropzone" id="resume-dropzone">
+                                    <input type="file" id="resume-input" accept=".pdf" hidden>
+                                    <div class="dropzone-prompt">
+                                        <i class="fa-regular fa-file-pdf pdf-upload-icon"></i>
+                                        <h3>Drag & drop your resume</h3>
+                                        <p>or <span class="browse-link">browse files</span></p>
+                                        <span class="file-limits">Only PDF accepted (Max 10MB)</span>
+                                    </div>
+                                    <div class="dropzone-file-preview hidden" id="file-preview">
+                                        <i class="fa-solid fa-file-pdf file-icon"></i>
+                                        <div class="file-details">
+                                            <span class="file-name" id="preview-file-name">filename.pdf</span>
+                                            <span class="file-size" id="preview-file-size">1.2 MB</span>
+                                        </div>
+                                        <button type="button" class="remove-file-btn" id="remove-file-btn">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Job Description Textarea -->
+                            <div class="form-group">
+                                <label for="jd-input" class="field-label">Target Job Description</label>
+                                <textarea id="jd-input" class="form-control" rows="8" placeholder="Paste the job description or requirement details here to run semantic mapping..."></textarea>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn btn-primary btn-block" id="analyze-submit">
+                                <span>Run Diagnostics</span>
+                                <i class="fa-solid fa-circle-notch fa-spin btn-spinner hidden" id="analyze-spinner"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Right: Results Panel -->
+                    <div class="results-container" id="results-placeholder">
+                        <div class="card glass empty-results">
+                            <i class="fa-solid fa-chart-simple placeholder-icon"></i>
+                            <h2>No Analysis Data Loaded</h2>
+                            <p>Upload a resume and paste a job description on the left to generate semantic scoring, track predictions, and AI improvements.</p>
+                        </div>
+                    </div>
+
+                    <div class="results-container hidden" id="results-panel">
+                        <!-- Summary Header Card -->
+                        <div class="card glass result-summary-card">
+                            <div class="summary-flex">
+                                <div class="candidate-meta">
+                                    <div class="candidate-header">
+                                        <div class="avatar-glow">
+                                            <i class="fa-solid fa-user"></i>
+                                        </div>
+                                        <div>
+                                            <h2 id="res-candidate-name">Jane Doe</h2>
+                                            <div class="candidate-details">
+                                                <span><i class="fa-regular fa-envelope"></i> <span id="res-email">jane.doe@example.com</span></span>
+                                                <span><i class="fa-solid fa-phone"></i> <span id="res-phone">+1 (555) 123-4567</span></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="predicted-role-badge-container">
+                                        <span class="info-label">ML Predicted Role:</span>
+                                        <span class="role-badge" id="res-predicted-role">Backend Developer</span>
+                                    </div>
+                                </div>
+                                <div class="score-circle-wrapper">
+                                    <div class="score-radial-progress" id="score-gauge" style="--percent: 75;">
+                                        <div class="inner-circle">
+                                            <span class="score-number" id="res-overall-score">75</span>
+                                            <span class="score-unit">%</span>
+                                        </div>
+                                    </div>
+                                    <span class="score-label">ATS Alignment Score</span>
+                                </div>
+                            </div>
+
+                            <!-- Subscores Grid -->
+                            <div class="subscores-grid">
+                                <div class="subscore-item">
+                                    <div class="subscore-header">
+                                        <span>Skill Keywords Coverage</span>
+                                        <span id="res-coverage-pct">60%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="res-coverage-fill" style="width: 60%;"></div>
+                                    </div>
+                                </div>
+                                <div class="subscore-item">
+                                    <div class="subscore-header">
+                                        <span>Semantic Similarity Match</span>
+                                        <span id="res-semantic-pct">85%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="res-semantic-fill" style="width: 85%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Grid for Role Probabilities & Skills matching -->
+                        <div class="results-subgrid">
+                            <!-- Role Classifier Chart Card -->
+                            <div class="card glass">
+                                <h3 class="card-subtitle"><i class="fa-solid fa-circle-nodes"></i> Track Probabilities</h3>
+                                <div class="role-chart-container" id="res-role-chart">
+                                    <!-- Dynamic role bars inserted here -->
+                                </div>
+                            </div>
+
+                            <!-- Skills Coverage Map Card -->
+                            <div class="card glass">
+                                <h3 class="card-subtitle"><i class="fa-solid fa-list-check"></i> Skills Categorized</h3>
+                                <div class="skills-category-tabs" id="res-skills-categories">
+                                    <!-- Dynamic skill folders inserted here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Skills Badges Columns -->
+                        <div class="skills-split-cards">
+                            <div class="card glass skill-list-card matching">
+                                <h3 class="card-subtitle success-txt"><i class="fa-solid fa-circle-check"></i> Matching Skills (<span id="res-matching-count">0</span>)</h3>
+                                <div class="skills-wrap" id="res-matching-skills">
+                                    <!-- Green badges -->
+                                </div>
+                            </div>
+                            <div class="card glass skill-list-card missing">
+                                <h3 class="card-subtitle warning-txt"><i class="fa-solid fa-triangle-exclamation"></i> Missing Skills (<span id="res-missing-count">0</span>)</h3>
+                                <div class="skills-wrap" id="res-missing-skills">
+                                    <!-- Orange badges -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AI Suggestions Copilot Panel -->
+                        <div class="card glass copilot-panel">
+                            <div class="copilot-header">
+                                <i class="fa-solid fa-robot copilot-logo"></i>
+                                <div>
+                                    <h3 class="copilot-title">AI Copilot Recommendation Engine</h3>
+                                    <p class="copilot-desc">Tailored feedback powered by Google Gemini model</p>
+                                </div>
+                            </div>
+
+                            <!-- Accordion-like containers for AI Feedback -->
+                            <div class="copilot-sections">
+                                <!-- Formatting & ATS flaws -->
+                                <div class="copilot-sec-item open">
+                                    <button class="copilot-sec-trigger">
+                                        <span><i class="fa-solid fa-triangle-exclamation sec-icon text-red"></i> ATS Formatting & Structural Flaws</span>
+                                        <i class="fa-solid fa-chevron-down arrow-icon"></i>
+                                    </button>
+                                    <div class="copilot-sec-content">
+                                        <ul class="bullet-list text-red-list" id="res-ats-issues">
+                                            <!-- ATS list -->
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Weak Bullets Optimiser -->
+                                <div class="copilot-sec-item open">
+                                    <button class="copilot-sec-trigger">
+                                        <span><i class="fa-solid fa-wand-magic-sparkles sec-icon text-purple"></i> Weak Bullet Points Optimizations (STAR Method)</span>
+                                        <i class="fa-solid fa-chevron-down arrow-icon"></i>
+                                    </button>
+                                    <div class="copilot-sec-content">
+                                        <div class="bullets-carousel-container" id="res-weak-bullets">
+                                            <!-- Dynamic original vs improved bullet blocks -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Project Suggestions -->
+                                <div class="copilot-sec-item">
+                                    <button class="copilot-sec-trigger">
+                                        <span><i class="fa-solid fa-diagram-project sec-icon text-teal"></i> Recommended Project Improvements</span>
+                                        <i class="fa-solid fa-chevron-down arrow-icon"></i>
+                                    </button>
+                                    <div class="copilot-sec-content">
+                                        <div class="project-suggestions-list" id="res-project-improvements">
+                                            <!-- Project upgrades -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Action Plan -->
+                                <div class="copilot-sec-item">
+                                    <button class="copilot-sec-trigger">
+                                        <span><i class="fa-solid fa-circle-check sec-icon text-green"></i> Step-by-Step Action Plan</span>
+                                        <i class="fa-solid fa-chevron-down arrow-icon"></i>
+                                    </button>
+                                    <div class="copilot-sec-content">
+                                        <ol class="action-plan-list" id="res-action-plan">
+                                            <!-- Action list -->
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 2: Bullet Improver Content -->
+            <section class="tab-content" id="improve-tab">
+                <div class="centered-narrow-container">
+                    <div class="card glass">
+                        <div class="tool-intro">
+                            <i class="fa-solid fa-wand-magic-sparkles tool-icon glow-purple"></i>
+                            <h2>STAR Achievement Optimizer</h2>
+                            <p>Transform weak, passive job descriptions and resume bullets into metrics-driven, high-impact statements using the STAR methodology.</p>
+                        </div>
+
+                        <form id="improve-form" class="mt-2">
+                            <div class="form-group">
+                                <label for="weak-statement-input" class="field-label">Original Weak Statement</label>
+                                <textarea id="weak-statement-input" class="form-control" rows="4" placeholder="Example: Worked on the backend APIs and fixed some critical bugs on the database..."></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="target-role-input" class="field-label">Target Role Context</label>
+                                <select id="target-role-input" class="form-control">
+                                    <option value="Backend Developer">Backend Developer</option>
+                                    <option value="Frontend Developer">Frontend Developer</option>
+                                    <option value="Android Developer">Android Developer</option>
+                                    <option value="ML Engineer">ML Engineer</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block" id="improve-submit">
+                                <span>Optimize Bullet Point</span>
+                                <i class="fa-solid fa-circle-notch fa-spin btn-spinner hidden" id="improve-spinner"></i>
+                            </button>
+                        </form>
+
+                        <div class="improved-result-box hidden" id="improve-result-box">
+                            <div class="result-box-header">
+                                <span class="badge success-badge"><i class="fa-solid fa-circle-check"></i> STAR Optimized</span>
+                                <button class="copy-btn" id="copy-improved-btn" title="Copy to Clipboard">
+                                    <i class="fa-regular fa-copy"></i> Copy
+                                </button>
+                            </div>
+                            <blockquote class="improved-quote" id="improved-statement-text">
+                                Designed and optimized 12+ REST endpoints using Django, reducing API response latency by 24% and resolving critical database concurrency issues.
+                            </blockquote>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 3: LeetCode Content -->
+            <section class="tab-content" id="leetcode-tab">
+                <div class="centered-narrow-container">
+                    <div class="card glass">
+                        <div class="tool-intro">
+                            <i class="fa-solid fa-code tool-icon glow-teal"></i>
+                            <h2>LeetCode Profile Analytics</h2>
+                            <p>Import and sync your LeetCode algorithmic problem-solving metrics directly into the diagnostic recommendations panel.</p>
+                        </div>
+
+                        <form id="leetcode-form" class="leetcode-search-bar mt-2">
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-user input-icon-left"></i>
+                                <input type="text" id="leetcode-username" class="form-control" placeholder="Enter LeetCode Username..." required>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="leetcode-submit">
+                                <span>Fetch Profile</span>
+                                <i class="fa-solid fa-circle-notch fa-spin btn-spinner hidden" id="leetcode-spinner"></i>
+                            </button>
+                        </form>
+
+                        <div class="leetcode-stats-card hidden" id="leetcode-stats-card">
+                            <div class="leetcode-header">
+                                <div class="lc-user-info">
+                                    <i class="fa-brands fa-leetcode lc-icon"></i>
+                                    <div>
+                                        <h3 id="lc-username-display">username</h3>
+                                        <span class="rank-badge"><i class="fa-solid fa-trophy"></i> Rank: <span id="lc-rank">123,456</span></span>
+                                    </div>
+                                </div>
+                                <div class="reputation-box">
+                                    <span class="rep-value" id="lc-reputation">45</span>
+                                    <span class="rep-label">Reputation</span>
+                                </div>
+                            </div>
+
+                            <div class="solved-header-stats">
+                                <span class="total-solved-num" id="lc-solved-all">142</span>
+                                <span class="total-count-num">/ <span id="lc-total-all">3100</span> Solved</span>
+                            </div>
+
+                            <!-- Solved progress loops -->
+                            <div class="difficulty-bars">
+                                <!-- Easy -->
+                                <div class="diff-bar-item">
+                                    <div class="diff-bar-meta">
+                                        <span class="diff-label easy">Easy</span>
+                                        <span class="diff-count"><span id="lc-solved-easy">45</span>/<span id="lc-total-easy">800</span></span>
+                                    </div>
+                                    <div class="progress-bar mini bg-easy-dim">
+                                        <div class="progress-fill bg-easy" id="lc-fill-easy" style="width: 10%;"></div>
+                                    </div>
+                                </div>
+                                <!-- Medium -->
+                                <div class="diff-bar-item">
+                                    <div class="diff-bar-meta">
+                                        <span class="diff-label medium">Medium</span>
+                                        <span class="diff-count"><span id="lc-solved-medium">85</span>/<span id="lc-total-medium">1600</span></span>
+                                    </div>
+                                    <div class="progress-bar mini bg-medium-dim">
+                                        <div class="progress-fill bg-medium" id="lc-fill-medium" style="width: 10%;"></div>
+                                    </div>
+                                </div>
+                                <!-- Hard -->
+                                <div class="diff-bar-item">
+                                    <div class="diff-bar-meta">
+                                        <span class="diff-label hard">Hard</span>
+                                        <span class="diff-count"><span id="lc-solved-hard">12</span>/<span id="lc-total-hard">700</span></span>
+                                    </div>
+                                    <div class="progress-bar mini bg-hard-dim">
+                                        <div class="progress-fill bg-hard" id="lc-fill-hard" style="width: 10%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="leetcode-suggestions mt-3">
+                                <h4><i class="fa-regular fa-lightbulb"></i> Profile Suggestions</h4>
+                                <ul class="bullet-list text-teal-list" id="lc-suggestions-list">
+                                    <!-- Suggestions -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 4: History Logs Content -->
+            <section class="tab-content" id="history-tab">
+                <div class="card glass">
+                    <div class="history-list-header">
+                        <h2>Historical Evaluation Logs</h2>
+                        <button class="btn btn-secondary text-red-border" id="clear-all-history">
+                            <i class="fa-solid fa-trash-can"></i> Clear All History
+                        </button>
+                    </div>
+                    
+                    <!-- Search Filter -->
+                    <div class="history-search-wrapper mt-2 mb-2">
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-magnifying-glass input-icon-left"></i>
+                            <input type="text" id="history-filter" class="form-control" placeholder="Filter by candidate name, role, score...">
+                        </div>
+                    </div>
+
+                    <!-- History List Grid -->
+                    <div class="history-list" id="history-list-container">
+                        <!-- Dynamic items -->
+                        <div class="history-empty-state">
+                            <i class="fa-solid fa-folder-open"></i>
+                            <p>No scanned records found in history database.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Notification system -->
+    <div class="notification-container" id="notification-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
