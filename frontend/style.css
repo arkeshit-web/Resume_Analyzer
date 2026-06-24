@@ -1733,4 +1733,55 @@ textarea.form-control {
         align-items: center;
         gap: 0.5rem;
     }
+    
+    .workspace-footer {
+        margin-top: 2rem;
+        padding-bottom: 2rem; /* padding spacing above bottom nav */
+    }
+    
+    .footer-content {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+}
+
+/* Workspace Footer Styles */
+.workspace-footer {
+    margin-top: 3.5rem;
+    padding-bottom: 1.5rem;
+}
+
+.footer-divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--border-glass), transparent);
+    margin-bottom: 1.5rem;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.footer-credits i {
+    color: #ef4444; /* Heart icon red color */
+    margin: 0 0.2rem;
+    animation: heartBeat 1.5s infinite;
+    display: inline-block;
+}
+
+@keyframes heartBeat {
+    0% { transform: scale(1); }
+    14% { transform: scale(1.15); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.15); }
+    70% { transform: scale(1); }
+}
+
+.credit-highlight {
+    color: var(--text-secondary);
+    font-weight: 600;
 }
