@@ -237,3 +237,7 @@ class HistoryListDestroyView(generics.ListAPIView, generics.DestroyAPIView):
         else:
             ResumeAnalysis.objects.all().delete()
             return Response({"message": "All historical records cleared."}, status=status.HTTP_200_OK)
+
+class HealthCheckView(APIView):
+    def get(self, request):
+        return Response({"status": "healthy"}, status=status.HTTP_200_OK)
